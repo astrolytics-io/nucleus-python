@@ -10,8 +10,7 @@ setup(
 	author_email='vince@lyser.io',
 	keywords=['analytics'],
 	install_requires=[
-		'websockets',
-		'asyncio',
+		'websocket',
 		'psutil',
 		'getpass'
 	],
