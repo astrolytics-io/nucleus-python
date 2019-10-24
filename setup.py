@@ -5,14 +5,14 @@ setup(
 	version='0.0.1',
 	description='Analytics and bug tracking for python applications',
 	license='MIT',
-	packages=['python-nucleus'],
+	packages=['nucleus'],
 	author='Vince Lwt',
 	author_email='vince@lyser.io',
 	keywords=['analytics'],
 	install_requires=[
 		'websocket',
 		'psutil',
-		'getpass'
+		'getmac'
 	],
 	url='https://github.com/lyserio/python-nucleus'
 )
