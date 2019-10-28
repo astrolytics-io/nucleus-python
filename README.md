@@ -12,7 +12,9 @@ $ pip install python-nucleus
 
 ## Usage
 
-Add the following code to import Nucleus. Don't use the `import ... from` as you won't be able to access module variables.
+Add the following code to import Nucleus and init the analytics.
+
+Don't use the `import ... from` as you won't be able to access module variables.
 
 
 ```python
@@ -23,6 +25,8 @@ nucleus.app_id = 'your app id'
 nucleus.init()
 
 ```
+
+**Only use `init()` once per session, if you are using Nucleus in several files call init() the soonest possible.**
 
 Sign up and get a tracking ID for your app [here](https://nucleus.sh).
 

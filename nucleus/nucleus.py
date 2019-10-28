@@ -6,23 +6,22 @@ from utils import get_total_ram, get_machine_id, merge_dicts, generate_user_id
 # Can be overwritten after importing the module
 ram = get_total_ram()
 arch = struct.calcsize("P") * 8
-api_url = "app.nucleus.sh"
-report_interval = 20 # s between reportings
 hostname = socket.gethostname()
 username = getpass.getuser()
+version = "0.0.0"
 locale = locale.getdefaultlocale()[0]
 machine_id = get_machine_id()
 session_id = random.randint(1000, 9999)
 os_name = platform.system()
 os_version = platform.release()
-module_version = "0.0.1"
+module_version = "0.1.0"
 
 # Options
+api_url = "app.nucleus.sh"
+report_interval = 20 # s between reportings
 app_id = None
 disable_tracking = False
 user_id = None
-version = None
-language = None
 dev = False
 dev_mode = False
 enable_logs = True
@@ -78,6 +77,7 @@ def track(name=None, data=None, type='event'):
 	if (type == 'init' or type == 'error'):
 
 		extra_data = {
+			"client": "python",
 			"platform": os_name,
 			"osVersion": os_version,
 			"totalRam": ram,
