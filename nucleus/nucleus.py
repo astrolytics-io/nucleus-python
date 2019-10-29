@@ -1,9 +1,17 @@
-import struct, threading, pickledb, socket, appdirs, getpass, datetime, random, json, websocket, locale, platform
+import locale, socket, struct, getpass, platform
+import time, datetime
+import threading
+import traceback
+import random
+import json
+
+import websocket
+import pickledb
+import appdirs
 
 from utils import get_total_ram, get_machine_id, merge_dicts, generate_user_id
 
 # User data
-# Can be overwritten after importing the module
 ram = get_total_ram()
 arch = struct.calcsize("P") * 8
 hostname = socket.gethostname()
@@ -24,7 +32,7 @@ disable_tracking = False
 user_id = None
 dev = False
 dev_mode = False
-enable_logs = True
+debug = False
 
 # Cache
 db = None
@@ -32,28 +40,36 @@ queue = None
 props = None
 ws = None
 
+def log(message):
+	if (debug):
+		print('Nucleus: '+message)
+
+def log_error(message):
+	print('Nucleus error: '+message)
+
 def init():
 	global db, queue, props
 
-	if (not app_id):
-		return print("Nucleus: app_id needed before you can start tracking")
+	log_error("set app_id before you can start tracking")
 
 	db_path = appdirs.user_cache_dir()
 	filename = 'nucleus-'+app_id
-	print(db_path)
 
 	# Restore DB
 	db = pickledb.load(db_path + '/' +filename, True)
 	queue = db.get('queue') or []
 	props = db.get('props') or {}
 
+	# Regularly run the function to let the server know client is still connected
+	threading.Timer(report_interval, report_data).start()
+
 	track(type='init')
+	report_data()
 
 def track(name=None, data=None, type='event'):
 	global queue
 
-	if (not app_id):
-		return print("Nucleus: set app_id and use init() before you can start tracking")
+	log_error("set app_id and use init() before you can start tracking")
 
 	# Generate a small temp id for this event, so when the server returns it
 	# we can remove it from the queue
@@ -96,42 +112,43 @@ def track_error(e):
 
 	type = e.__class__.__name__
 	message = str(e)
-	traceback = str(e.__traceback__)
+	stacktrace= ''.join(traceback.format_tb(e.__traceback__))
 
 	err_object = {
 		"message": message,
-		"stack": traceback
+		"stack": stacktrace
 	}
 
-	track(data=err_object, type='error')
+	track(type, data=err_object, type='error')
 
 def set_user_id(new):
 	global user_id
 
 	user_id = new
-	if (enable_logs): print('Nucleus: user id set to ' + user_id)
+
+	log('user id set to ' + user_id)
+	
 	track(type='userid') 
 
 def set_props(new_props, overwrite=False):
 	global props, user_id
 
-	if (hasattr(new_props, 'user_id')): 
+	if ('user_id' in new_props): 
 		user_id = new_props.user_id
 
 	# Merge past and new props
 	props = new_props if overwrite else merge_dicts(props, new_props)
 
 	db.set('props', props)
-
-	# print(db.get('props'))
+	db.dump()
 
 	track(data=props, type='userid') 
 
 def send_queue():
-	if (not ws or not ws.connected):
+	if not ws: #or not ws.connected):
 		return
-	
-	if (queue.count() <= 0): 
+
+	if not len(queue): 
 		
 		# Nothing to report, send a heartbeat anyway
 		# (like if the connection was lost and is back)
@@ -148,61 +165,80 @@ def send_queue():
 		return ws.send(json.dumps(heartbeat))
 
 	payload = {
-		"data": queue.all()
+		"data": queue
 	}
 
-	if enable_logs:
-		print('Nucleus: sending cached events ('+queue.count()+')')
+	log('sending cached events ('+str(len(queue))+')')
 
-	ws.send(json.dumps(payload))
+	try:
+		ws.send(json.dumps(payload))
+	except: 
+		error_log("could not send data. We'll try later.")
 
-def report_data():
+def activate_ws():
 	global ws
 
-	# Regularly run the function to let the server know client is still connected
-	threading.Timer(report_interval, report_data).start()
-
-	if disable_tracking: return
-	
 	if not ws:
+		# if enable_logs:
+		# 	websocket.enableTrace(True)
+
 		protocol = "ws" if dev else "wss"
-		endpoint = protocol + "://" + api_url
+		endpoint = protocol + "://" + api_url + "/app/" + app_id + "/track"
 
-		ws = websocket.WebSocketApp(endpoint,
-								on_message = on_message,
-								on_error = on_error,
-								on_close = on_close,
-								on_open = send_queue)
-		ws.run_forever()
+		try:
+			ws = websocket.WebSocketApp(endpoint,
+									on_message = on_message,
+									on_error = on_error,
+									on_close = on_close,
+									on_open = on_open )
 
-	if (queue.count()): send_queue()
+			
+
+			# ws.on_open = send_queue()
+			ws.run_forever()
+		except:
+			log_error('could not start websocket connection. Something seems wrong.')
+
+	elif len(queue):
+		send_queue()
+
+def on_open(client):
+	# time.sleep(2) # let time for connection to establish
+	send_queue()
+
+def report_data():
+	
+	if disable_tracking: return
+
+	threading.Thread(target=activate_ws).start()
 
 def on_message(ws, message):
 	global queue
 
 	data = json.loads(message)
 
-	if (data.reported_ids or data.confirmation):
-		if enable_logs:
-			print('Nucleus: server successfully registered data')
-	
-		if data.reported_ids:
-			queue = [item for item in queue if item.id not in data.reported_ids]
+	log('new message from server')
+	log(message)
+
+	if 'reportedIds' in data:
+		log('server successfully registered data')
+
+		try:
+			queue = [item for item in queue if item['id'] not in data['reportedIds']]
+
 			db.set('queue', queue)
 
-	if enable_logs:
-		print("Nucleus: new message from server")
-		print(message)
+		except Exception as error:
+			log_error(error)
 
-def on_error(ws, error):
+def on_error(client, error):
+	global ws
 	ws = None
 
-	if enable_logs:
-		print("Nucleus: error with connection")
-		print(error)
+	log_error("Nucleus: error with connection. We'll try again later.")
 
-def on_close(ws):
+def on_close(client):
+	global ws
 	ws = None
 
-	if enable_logs:
-		print("Nucleus: connection closed")
+	log('websocket connection closed')

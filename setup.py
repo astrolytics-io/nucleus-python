@@ -9,10 +9,9 @@ README = (HERE / "README.md").read_text()
 
 setup(
 	name='python-nucleus',
-	version='0.1.0',
+	version='0.1.1',
 	description='Analytics and bug tracking for Python desktop apps',
-	license='MIT',
-	packages=['nucleus'],
+	license='MIT License',
 	long_description=README,
     long_description_content_type="text/markdown",
 	author='Lyser.io',
@@ -20,7 +19,7 @@ setup(
 	packages=find_packages(exclude=("tests",)),
 	keywords=['analytics', 'tracking', 'error','bug', 'crash'],
 	install_requires=[
-		'websocket',
+		'websocket-client',
 		'psutil',
 		'getmac',
 		'appdirs',
