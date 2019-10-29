@@ -9,6 +9,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
 	name='python-nucleus',
+	python_requires='>3.1.0',
 	version='0.1.1',
 	description='Analytics and bug tracking for Python desktop apps',
 	license='MIT License',
