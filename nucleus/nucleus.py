@@ -50,7 +50,8 @@ def log_error(message):
 def init():
 	global db, queue, props
 
-	log_error("set app_id before you can start tracking")
+	if not app_id:
+		log_error("set app_id before you can start tracking")
 
 	db_path = appdirs.user_cache_dir()
 	filename = 'nucleus-'+app_id
@@ -61,7 +62,9 @@ def init():
 	props = db.get('props') or {}
 
 	# Regularly run the function to let the server know client is still connected
-	threading.Timer(report_interval, report_data).start()
+	timer = threading.Timer(report_interval, report_data)
+	timer.daemon = True
+	timer.start()
 
 	track(type='init')
 	report_data()
@@ -69,7 +72,8 @@ def init():
 def track(name=None, data=None, type='event'):
 	global queue
 
-	log_error("set app_id and use init() before you can start tracking")
+	if not app_id:
+		log_error("set app_id and use init() before you can start tracking")
 
 	# Generate a small temp id for this event, so when the server returns it
 	# we can remove it from the queue
@@ -192,8 +196,6 @@ def activate_ws():
 									on_close = on_close,
 									on_open = on_open )
 
-			
-
 			# ws.on_open = send_queue()
 			ws.run_forever()
 		except:
@@ -210,7 +212,9 @@ def report_data():
 	
 	if disable_tracking: return
 
-	threading.Thread(target=activate_ws).start()
+	thread = threading.Thread(target=activate_ws, daemon=True)
+	thread.daemon = True
+	thread.start()
 
 def on_message(ws, message):
 	global queue
