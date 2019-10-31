@@ -11,18 +11,6 @@ import appdirs
 
 from utils import get_total_ram, get_machine_id, merge_dicts, generate_user_id
 
-# User data
-ram = get_total_ram()
-arch = struct.calcsize("P") * 8
-hostname = socket.gethostname()
-username = getpass.getuser()
-version = "0.0.0"
-locale = locale.getdefaultlocale()[0]
-machine_id = get_machine_id()
-session_id = random.randint(1000, 9999)
-os_name = platform.system()
-os_version = platform.release()
-module_version = "0.1.0"
 
 # Options
 api_url = "app.nucleus.sh"
@@ -47,7 +35,28 @@ def log(message):
 def log_error(message):
 	print('Nucleus error: '+message)
 
-def init():
+
+# User data
+ram = get_total_ram()
+arch = struct.calcsize("P") * 8
+hostname = socket.gethostname()
+username = getpass.getuser()
+version = "0.0.0"
+
+try:
+	locale = locale.getdefaultlocale()[0]
+except:
+	log_error('Could not detect user language (probably the MacOS bug)')
+	locale = None
+
+machine_id = get_machine_id()
+session_id = random.randint(1000, 9999)
+os_name = platform.system()
+os_version = platform.release()
+module_version = "0.1.0"
+
+
+def app_started():
 	global db, queue, props
 
 	if not app_id:
@@ -73,7 +82,7 @@ def track(name=None, data=None, type='event'):
 	global queue
 
 	if not app_id:
-		log_error("set app_id and use init() before you can start tracking")
+		log_error("set app_id and use app_started() before you can start tracking")
 
 	# Generate a small temp id for this event, so when the server returns it
 	# we can remove it from the queue

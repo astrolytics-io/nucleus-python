@@ -1,8 +1,10 @@
 import sys, time
 
-sys.path.insert(1, '../nucleus/python-nucleus/nucleus/')
+sys.path.insert(1, './nucleus/')
 
 import nucleus
+
+print(nucleus)
 
 nucleus.version = '0.0.5'
 nucleus.user_id = 'test'
@@ -11,7 +13,7 @@ nucleus.debug = True
 nucleus.dev = True
 nucleus.api_url = 'localhost:5000'
 
-nucleus.init()
+nucleus.app_started()
 
 # try:
 # 	raise Exception('This is the exception you expect to handle')

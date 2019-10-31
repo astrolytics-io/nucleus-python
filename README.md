@@ -14,7 +14,7 @@ $ pip install python-nucleus
 
 Add the following code to import Nucleus and init the analytics.
 
-Don't use the `import ... from` syntax as you won't be able to access inside module variables.
+Don't use the `import ... from` syntax as you won't be able to access inside module variables and set the right variables.
 
 
 ```python
@@ -23,10 +23,10 @@ import nucleus
 nucleus.app_id = 'your app id'
 nucleus.version = '1.3.9'
 
-nucleus.init()
+nucleus.app_started()
 ```
 
-**Only use `init()` once per session, if you are using Nucleus in several files call init() the soonest possible.**
+**Only use `app_started()` once per session, if you are using Nucleus in several files call app_started() the soonest  possible.**
 
 Sign up and get a tracking ID for your app [here](https://nucleus.sh).
 
@@ -45,7 +45,6 @@ nucleus.locale = 'es_ES' # specify a custom locale (default: autodetected)
 
 By default **language** is autodetected but you can overwrite it.
 
-
 ### Identify your users
 
 You can track specific users actions on the 'User Explorer' section of your dashboard.
@@ -57,7 +56,7 @@ It can be your own generated ID, an email, username... etc.
 ```python
 nucleus.user_id = 'someUniqueUserId'
 
-nucleus.init()
+nucleus.app_started()
 ```
 
 Or if you don't know it on start, you can add it later with:
