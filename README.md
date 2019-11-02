@@ -7,7 +7,7 @@ To start using this module, sign up and get an app ID on the [Nucleus website](h
 ## Installation
 
 ```bash
-$ pip install python-nucleus
+$ pip install nucleus-python
 ```
 
 ## Usage
