@@ -1,6 +1,8 @@
-# nucleus-python ![PyPI](https://img.shields.io/pypi/v/python-nucleus) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/python-nucleus) 
+# nucleus-python ![PyPI](https://img.shields.io/pypi/v/nucleus-python) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/nucleus-python) 
 
 We tried to make it as simple as possible to report the data you need to analyze your app and improve it.
+
+This module is compatible with Python 3+.
 
 To start using this module, sign up and get an app ID on the [Nucleus website](https://nucleus.sh). 
 
