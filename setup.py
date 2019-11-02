@@ -9,8 +9,8 @@ README = (HERE / "README.md").read_text()
 
 setup(
 	name='nucleus-python',
-	python_requires='>3.1.0',
-	version='0.2.0',
+	python_requires='>3.1',
+	version='0.2.1',
 	description='Analytics and bug tracking for Python desktop apps',
 	license='MIT License',
 	long_description=README,
@@ -26,5 +26,10 @@ setup(
 		'appdirs',
 		'pickledb'
 	],
+	classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
 	url='https://github.com/nucleus-sh/nucleus-python'
 )

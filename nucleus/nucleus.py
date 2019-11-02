@@ -53,7 +53,7 @@ machine_id = get_machine_id()
 session_id = random.randint(1000, 9999)
 os_name = platform.system()
 os_version = platform.release()
-module_version = "0.1.0"
+module_version = "0.2"
 
 
 def app_started():
