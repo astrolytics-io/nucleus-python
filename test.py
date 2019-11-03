@@ -1,17 +1,13 @@
 import sys, time
-
-sys.path.insert(1, './nucleus/')
-
 import nucleus
 
-print(nucleus)
-
-nucleus.version = '0.0.5'
-nucleus.user_id = 'test'
 nucleus.app_id = '5db75280823739031ec1378c'
 nucleus.debug = True
-nucleus.dev = True
-nucleus.api_url = 'localhost:5000'
+nucleus.api_url = 'ws://localhost:5000'
+
+nucleus.set_props({
+	'version': '0.5.0'
+})
 
 nucleus.app_started()
 
@@ -21,7 +17,7 @@ nucleus.app_started()
 # 	print(error)
 # 	nucleus.track_error(error)
 
-nucleus.track('yo', data={
+nucleus.track('test_event', data={
 	'this': 'isAwesome'
 })
 

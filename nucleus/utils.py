@@ -1,6 +1,8 @@
-import hashlib, getmac, psutil
+import hashlib, getmac, psutil, getpass, socket
 
 def generate_user_id():
+	hostname = socket.gethostname()
+	username = getpass.getuser()
 	user_id = username + "@" + hostname
 
 def merge_dicts(x, y):

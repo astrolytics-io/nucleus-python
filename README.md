@@ -1,10 +1,10 @@
 # nucleus-python ![PyPI](https://img.shields.io/pypi/v/nucleus-python) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/nucleus-python) 
 
-We tried to make it as simple as possible to report the data you need to analyze your app and improve it.
+We tried to make it as simple as possible to report the data you need to analyze your app usage and improve it.
 
 This module is compatible with Python 3+.
 
-To start using this module, sign up and get an app ID on the [Nucleus website](https://nucleus.sh). 
+To start using this module, sign up and get an app ID on [Nucleus.sh](https://nucleus.sh). 
 
 ## Installation
 
@@ -12,23 +12,27 @@ To start using this module, sign up and get an app ID on the [Nucleus website](h
 $ pip install nucleus-python
 ```
 
-## Usage
+## Basic usage
 
 Add the following code to import Nucleus and init the analytics.
 
-Don't use the `import ... from` syntax as you won't be able to access inside module variables and set the right variables.
+Don't use the `import ... from` syntax as you won't be able to set the module options like `app_id`.
 
 
 ```python
 import nucleus
 
 nucleus.app_id = 'your app id'
-nucleus.version = '1.3.9'
+
+nucleus.set_props({
+	'version': '0.5.0', # Set app version (Nucleus cannot detect it)
+	'userId': 'richard_hendrix'
+})
 
 nucleus.app_started()
 ```
 
-**Only use `app_started()` once per session, if you are using Nucleus in several files call app_started() the soonest  possible.**
+**Only use `app_started()` once per session, if you are using Nucleus in several files call app_started() the earliest possible.**
 
 Sign up and get a tracking ID for your app [here](https://nucleus.sh).
 
@@ -37,42 +41,42 @@ Sign up and get a tracking ID for your app [here](https://nucleus.sh).
 You can init Nucleus with options:
 
 ```python
-nuclesu.report_interval = 20 # interval (in seconds) between server com
+nucleus.report_interval = 20 # interval (in seconds) between server com
 nucleus.disable_tracking = False # completely disable tracking
-nucleus.user_id = 'user123' # set an identifier for this user
 nucleus.debug = False # Show internal logs to help debug
-nucleus.version = '1.3.9' # set the current version of your app
-nucleus.locale = 'es_ES' # specify a custom locale (default: autodetected)
+nucleus.auto_user_id = False # Assign the user an ID
 ```
 
-By default **language** is autodetected but you can overwrite it.
+### Identify users
 
-### Identify your users
+You can track specific users actions on the 'User Explorer' section of your dashboard by assigning an user ID. 
 
-You can track specific users actions on the 'User Explorer' section of your dashboard.
-
-For that, you can supply an `userId` when initing the Nucleus module. 
-
-It can be your own generated ID, an email, username... etc.
-
-```python
-nucleus.user_id = 'someUniqueUserId'
-
-nucleus.app_started()
-```
-
-Or if you don't know it on start, you can add it later with:
+It can be any value as long as it is a *string*.
 
 ```python
 nucleus.set_user_id('someUniqueUserId')
 ```
 
-Alternatively, set the `autoUserId` option of the module to `True` to automatically assign the user an ID based on his username and hostname.
+Alternatively, set the `auto_user_id` option of the module to `True` to automatically assign the user an ID based on his username and hostname.
 
+### Modify automatic data
+
+You can overwrite some properties or fill data that wasn't detected.
+
+*You have to do it before calling `app_started()` for this to work*
+
+It is a good idea to set your app version directly as Nucleus **cannot detect it** for the moment.
+
+```python
+nucleus.set_props({
+	'version': '0.5.0',
+	'locale': 'en_US'
+})
+```
 
 ### Track custom data
 
-You can add custom data along with the automatic data.
+You can also add custom data along with the automatic data.
  
 Those will be visible in your user dashboard *if you previously set an user ID*.
 
@@ -85,17 +89,35 @@ Nested properties or arrays aren't supported at the moment.
 nucleus.set_props({
 	"age": 34,
 	"name": 'Richard Hendricks',
-	"jobType": 'CEO'
+	"job": 'CEO'
 })
 ```
 
-Enable overwrite: set the second parameter as `True` to overwrite past properties. 
+To overwrite past properties, set the second parameter to `True`. 
 
 ```python
 nucleus.set_props({
 	"age": 23
 }, True)
 ```
+
+### Errors
+
+To catch errors with Nucleus, simply add the tracking code to an exception and pass the exception as the unique parameter. 
+
+Nucleus will extract the relevant informations and show them in your dashboard.
+
+```python
+try:
+    my_app()
+except Exception as e:
+	nucleus.track_error(e)
+```
+
+Add this at the outermost level of your code to handle any otherwise uncaught exceptions before terminating.
+
+The advantage of except Exception over the bare except is that there are a few exceptions that it wont catch, most obviously KeyboardInterrupt and SystemExit.
+
 
 ### Events
 
@@ -133,35 +155,16 @@ This will completely disable any communication with Nucleus' servers.
 To opt-out your users from tracking:
 
 ```python
-nucleus.disable_tracking = True
+nucleus.disable_tracking()
 ```
 
 and to opt back in:
 
 ```python
-nucleus.disable_tracking = False
+nucleus.enable_tracking()
 ```
 
-This change won't persist after restarts so you have to handle the saving of the settings.
-
-
-### Errors
-
-To track errors with Nucleus, simply add the tracking code to an exception and pass the exception as the unique parameter. 
-
-Nucleus will extract the relevant informations and show them in your dashboard.
-
-```python
-try:
-    my_app()
-except Exception as e:
-	nucleus.track_error(e)
-```
-
-Add this at the outermost level of your code to handle any otherwise uncaught exceptions before terminating.
-
-The advantage of except Exception over the bare except is that there are a few exceptions that it wont catch, most obviously KeyboardInterrupt and SystemExit.
-
+This doesn't persist after restarts so you have to handle saving the setting.
 
 ---
 Contact **hello@nucleus.sh** for any inquiry

@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 setup(
 	name='nucleus-python',
 	python_requires='>3.1',
-	version='0.2.1',
+	version='0.3.0',
 	description='Analytics and bug tracking for Python desktop apps',
 	license='MIT License',
 	long_description=README,
@@ -18,7 +18,7 @@ setup(
 	author='Nucleus.sh',
 	author_email='hello@nucleus.sh',
 	packages=find_packages(exclude=("tests",)),
-	keywords=['analytics', 'tracking', 'error','bug', 'crash'],
+	keywords=['analytics', 'tracking', 'error', 'bug', 'crash'],
 	install_requires=[
 		'websocket-client',
 		'psutil',
