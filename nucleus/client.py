@@ -135,12 +135,12 @@ class Client():
 
 		self.track(type, data=err_object, type='error')
 
-	def disable_tracking(self, new):
+	def disable_tracking(self):
 
 		self.disable_tracking = True
 		self.log('tracking disabled')
 
-	def enable_tracking(self, new):
+	def enable_tracking(self):
 
 		self.disable_tracking = False
 		self.log('tracking enabled')
